@@ -30,3 +30,7 @@
 ## Out of slice
 
 Online co-op, listen-server, visit-friend, dedicated host.
+
+## SURGE Ability Kit v0
+See `Docs/SURGE-ABILITY-KIT-v0.md`. CDs wired in `SurgeController`.
+Stub order: Cap Mine+Cell dump → Arc Seed → Field Puck → supers last.
