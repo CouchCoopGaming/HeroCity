@@ -34,3 +34,7 @@ Online co-op, listen-server, visit-friend, dedicated host.
 ## SURGE Ability Kit v0
 See `Docs/SURGE-ABILITY-KIT-v0.md`. CDs wired in `SurgeController`.
 Stub order: Cap Mine+Cell dump → Arc Seed → Field Puck → supers last.
+
+## Story sockets (SP)
+C1 Call → C2 Pattern → C3 Trail → C4 Door → **N1** hideout intro (**The Watcher**) → C5 Aftertaste.
+No co-op story.

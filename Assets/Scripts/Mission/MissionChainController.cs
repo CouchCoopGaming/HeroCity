@@ -35,9 +35,21 @@ namespace HeroCity.Mission
             }
         }
 
+        static string StoryLabel(MissionNodeId id) => id switch
+        {
+            MissionNodeId.S0_Boardwalk => "C1 Call (S0)",
+            MissionNodeId.S1_Bodega => "C1b/C2 Pattern (S1)",
+            MissionNodeId.S2_AlleyRoof => "C2/C3 Trail (S2)",
+            MissionNodeId.S3_Junction => "C3 Funnel (S3)",
+            MissionNodeId.S4_WarehouseApproach => "C4 Door (S4)",
+            MissionNodeId.S5_Hideout => "N1 Hideout (S5)",
+            _ => id.ToString()
+        };
+
         void OnGUI()
         {
-            GUI.Box(new Rect(12, 12, 360, 48), $"Riverward chain · {Current}" + (Complete ? " · NEMESIS INTRO" : ""));
+            GUI.Box(new Rect(12, 12, 420, 48),
+                $"Riverward · {StoryLabel(Current)}" + (Complete ? " · N1/C5" : ""));
         }
     }
 }

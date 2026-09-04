@@ -3,11 +3,11 @@ using System.Collections;
 
 namespace HeroCity.Narrative
 {
-    /// <summary>Placeholder Blackout intro: Arrival→Reveal→Grade→Clash→Exit→Hook. Leave alive.</summary>
+    /// <summary>N1 hideout intro — The Watcher (placeholder). SP only, no co-op story.</summary>
     public class NemesisIntroHook : MonoBehaviour
     {
         bool _running;
-        string _beat = "waiting S5";
+        string _beat = "waiting N1 (S5 hideout)";
 
         public void BeginIntro()
         {
@@ -21,11 +21,12 @@ namespace HeroCity.Narrative
             string[] steps =
             {
                 "N1 Arrival — warehouse air goes thin",
-                "N1 Reveal — Blackout (Surge foil) steps from breaker shadow",
-                "N1 Grade — cites S0–S3 / ozone tells",
+                "N1 Reveal — The Watcher steps from breaker shadow",
+                "N1 Grade — cites C1–C3 / ozone tells along the chain",
                 "N1 Clash — teach exchange (placeholder; leave alive)",
-                "N1 Exit — breaker calling card; lights die a beat",
-                "N1 Hook — \"You matter to a block. One person noticed.\""
+                "N1 Exit — calling card; lights die a beat",
+                "N1 Hook — \"You matter to a block. One person noticed.\"",
+                "C5 Aftertaste — thanks/warn; Strip blinked (stub)"
             };
             foreach (var s in steps)
             {
@@ -33,13 +34,13 @@ namespace HeroCity.Narrative
                 Debug.Log("[Nemesis] " + s);
                 yield return new WaitForSeconds(1.6f);
             }
-            _beat = "Intro complete — nemesis left alive";
+            _beat = "N1 complete — The Watcher left alive · C5 stub fired";
             _running = false;
         }
 
         void OnGUI()
         {
-            GUI.Box(new Rect(12, 132, 520, 36), "Nemesis: " + _beat);
+            GUI.Box(new Rect(12, 132, 560, 36), "Story: " + _beat);
         }
     }
 }
