@@ -16,9 +16,16 @@
 
 | Owner | Socket |
 |-------|--------|
-| Level | `RiverwardBootstrap` pads/landmarks S0–S5 — replace with real graybox |
+| Level | `RiverwardBootstrap` — full Riverward graybox-v0 (400×280, S0–S5, massing, hideout shell, Blackout props) |
 | Systems | `SurgeController` variant stubs — fill numbers from SURGE-SLICE-KIT |
 | Narrative | `NemesisIntroHook` beat strings — replace with VO/bark cards |
+
+
+## Level pack (in-tree)
+
+- `Docs/Riverward-graybox-v0.md` — meters, sockets S0–S5, hideout, Blackout props
+- `Docs/Riverward-spine-v0.svg` + `Docs/Riverward-spine-v0.md` — spine map
+- Runtime: `Assets/Scripts/Level/RiverwardBootstrap.cs` (pass 2 graybox)
 
 ## Out of slice
 

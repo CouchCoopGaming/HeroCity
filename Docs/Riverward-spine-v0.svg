@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 560" width="720" height="560" font-family="ui-monospace, Menlo, monospace">
+  <rect width="720" height="560" fill="#1a1c1e"/>
+  <text x="24" y="28" fill="#e8e6e3" font-size="15">HeroCity Riverward — mission spine S0–S5 (thesis v0.2)</text>
+  <text x="24" y="46" fill="#9aa0a6" font-size="11">~400×280 m · N up · street-level Neighborhood→Civic · no skyline · Eng held</text>
+
+  <!-- playable: origin (40,480) = SW, scale 1.5px/m, 400m=600px, 280m=420px -->
+  <g transform="translate(40,60)">
+    <!-- water south edge Z 0-40 → y from bottom: water is south in our story = bottom of map if N up
+         Boardwalk at south (water). Two-flats mid. Junction. Warehouses north. -->
+    <!-- Water Z[0,40] → svg y = (280-40)*1.5=360 to 280*1.5=420 -->
+    <rect x="0" y="360" width="600" height="60" fill="#1e3a5f" stroke="#3d7eff" stroke-width="1"/>
+    <text x="300" y="395" fill="#a8d4ff" font-size="12" text-anchor="middle">WATER / FERRY</text>
+
+    <!-- Boardwalk Z[40,80] -->
+    <rect x="0" y="300" width="600" height="60" fill="#3a3530" stroke="#c5cbd1" stroke-width="1"/>
+    <text x="12" y="335" fill="#e8e6e3" font-size="11">BOARDWALK</text>
+
+    <!-- Two-flats Z[80,160] -->
+    <rect x="0" y="180" width="600" height="120" fill="#2b3340" stroke="#8ab4f8" stroke-width="1"/>
+    <text x="12" y="210" fill="#8ab4f8" font-size="11">TWO-FLATS (Neighborhood)</text>
+    <!-- alley hints -->
+    <rect x="140" y="190" width="12" height="100" fill="#1a1c1e"/>
+    <rect x="300" y="190" width="12" height="100" fill="#1a1c1e"/>
+    <rect x="460" y="190" width="12" height="100" fill="#1a1c1e"/>
+
+    <!-- Junction Z[160,200] -->
+    <rect x="180" y="120" width="240" height="60" fill="#3f4a3a" stroke="#3f7a4a" stroke-width="2"/>
+    <text x="300" y="155" fill="#a8e05a" font-size="11" text-anchor="middle">JUNCTION (Civic edge / precinct)</text>
+
+    <!-- Warehouse strip Z[200,280] -->
+    <rect x="0" y="0" width="600" height="120" fill="#3a3030" stroke="#e23b2f" stroke-width="1"/>
+    <text x="12" y="24" fill="#ff6b5b" font-size="11">WAREHOUSE STRIP</text>
+    <!-- hideout building -->
+    <rect x="360" y="20" width="160" height="80" fill="#5c3a2e" stroke="#f5d547" stroke-width="2"/>
+    <text x="440" y="65" fill="#f5d547" font-size="11" text-anchor="middle">HIDEOUT S5</text>
+
+    <!-- streets E-W -->
+    <rect x="0" y="290" width="600" height="10" fill="#2a2a2e"/>
+    <rect x="0" y="170" width="600" height="10" fill="#2a2a2e"/>
+    <rect x="0" y="110" width="600" height="10" fill="#2a2a2e"/>
+    <!-- N-S avenues -->
+    <rect x="95" y="0" width="10" height="360" fill="#2a2a2e"/>
+    <rect x="295" y="0" width="10" height="360" fill="#2a2a2e"/>
+    <rect x="495" y="0" width="10" height="360" fill="#2a2a2e"/>
+
+    <!-- sockets -->
+    <!-- S0 boardwalk center -->
+    <circle cx="300" cy="330" r="14" fill="#f5d547" stroke="#fff" stroke-width="2"/>
+    <text x="300" y="334" fill="#1a1c1e" font-size="10" text-anchor="middle" font-weight="bold">S0</text>
+    <text x="320" y="334" fill="#f5d547" font-size="10">ferry/boardwalk start</text>
+    <!-- S1 bodega -->
+    <circle cx="160" cy="250" r="14" fill="#f5d547" stroke="#fff" stroke-width="2"/>
+    <text x="160" y="254" fill="#1a1c1e" font-size="10" text-anchor="middle" font-weight="bold">S1</text>
+    <text x="180" y="254" fill="#f5d547" font-size="10">bodega/stoop</text>
+    <!-- S2 alley/roof -->
+    <circle cx="460" cy="230" r="14" fill="#f5d547" stroke="#fff" stroke-width="2"/>
+    <text x="460" y="234" fill="#1a1c1e" font-size="10" text-anchor="middle" font-weight="bold">S2</text>
+    <text x="420" y="210" fill="#f5d547" font-size="10">alley / local roof</text>
+    <!-- S3 junction -->
+    <circle cx="300" cy="150" r="14" fill="#3d7eff" stroke="#fff" stroke-width="2"/>
+    <text x="300" y="154" fill="#fff" font-size="10" text-anchor="middle" font-weight="bold">S3</text>
+    <text x="320" y="154" fill="#8ab4f8" font-size="10">precinct funnel</text>
+    <!-- S4 approach -->
+    <circle cx="300" cy="70" r="14" fill="#f5d547" stroke="#fff" stroke-width="2"/>
+    <text x="300" y="74" fill="#1a1c1e" font-size="10" text-anchor="middle" font-weight="bold">S4</text>
+    <text x="320" y="74" fill="#f5d547" font-size="10">dock approach</text>
+    <!-- S5 -->
+    <circle cx="440" cy="60" r="14" fill="#e23b2f" stroke="#fff" stroke-width="2"/>
+    <text x="440" y="64" fill="#fff" font-size="10" text-anchor="middle" font-weight="bold">S5</text>
+
+    <!-- spine path -->
+    <polyline points="300,330 160,250 460,230 300,150 300,70 440,60" fill="none" stroke="#00e5ff" stroke-width="3" stroke-dasharray="8 4" opacity="0.85"/>
+
+    <!-- landmarks -->
+    <rect x="520" y="310" width="50" height="8" fill="#c5cbd1"/>
+    <text x="545" y="305" fill="#c5cbd1" font-size="9" text-anchor="middle">L1 pier</text>
+    <rect x="70" y="200" width="8" height="40" fill="#e8d9c0"/>
+    <text x="50" y="195" fill="#e8d9c0" font-size="9">L2 neon</text>
+    <rect x="520" y="30" width="20" height="70" fill="#b8c0c8"/>
+    <text x="550" y="50" fill="#b8c0c8" font-size="9">L3 elevator</text>
+  </g>
+
+  <text x="24" y="520" fill="#cbd5e1" font-size="11">Cyan dash = mission spine. Yellow = Neighborhood sockets. Blue S3 = Civic edge. Red S5 = first nemesis teach.</text>
+  <text x="24" y="538" fill="#9aa0a6" font-size="10">No skyline. No second district. Paper only — Eng no scenes until GDD lock.</text>
+</svg>
