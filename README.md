@@ -1,10 +1,19 @@
 # HeroCity
 
-Unity multiplayer **superhero RPG / looter-shooter**.
+Unity **SP-first** superhero action RPG slice (Destiny-like fantasy, powers not classes).
 
-Street-level hero → global legend. Eight powers (not classes), deep skill trees, open coastal Midwest city, career nemesis gallery, sponsors shaping your city, solo or 1–3 friend team-ups across cities.
+## Current tip — SP scaffold
 
-Engine: Unity. Status: GDD / pre-production.
+Branch `scaffold/sp-slice-v0`:
 
-See team GDD (Producer) for current design docs.
+- 3rd-person move/camera
+- Riverward mission-chain graybox **S0→S5** (hideout)
+- SURGE ×3 stubs (Chainjack / Capacitor / Static Field)
+- Nemesis intro hook placeholder
+- **No** online co-op / net
 
+See [`Docs/SLICE-SCAFFOLD.md`](Docs/SLICE-SCAFFOLD.md).
+
+## GDD lock
+
+Quality SP first · 3rd-person · mission-chain → hideout · SURGE ×3 · Nemesis intro · Riverward.
