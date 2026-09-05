@@ -8,7 +8,7 @@ namespace HeroCity.Level
 {
     /// <summary>
     /// Riverward graybox v0 — 400×280 m SW origin (+X east, +Z north).
-    /// Pass 3: ferry/S0, alley connectors, hideout interior staging. Matches Riverward-graybox-v0.
+    /// Pass 4 / 20min: Arena_A–D + Nav_* envelopes + path doglegs. MissionVolumes intact. Matches Riverward-20min-pacing-v0.
     /// </summary>
     public class RiverwardBootstrap : MonoBehaviour
     {
@@ -34,6 +34,7 @@ namespace HeroCity.Level
             BuildHideoutShell();
             BuildBlackoutProps();
             BuildPass3Volumes();
+            Build20MinPack();
             SpawnPlayer();
             EnsureSystems();
             Cursor.lockState = CursorLockMode.Locked;
@@ -325,6 +326,74 @@ namespace HeroCity.Level
             // Bodega optional tiny shell — open stoop volume, not a solid fill
             Box("Bodega_Floor", new Vector3(107f, 0.1f, 113f), new Vector3(5f, 0.1f, 5f),
                 new Color(0.55f, 0.4f, 0.2f), p3);
+        }
+
+
+        /// <summary>~20 min SP demo pack — arenas + nav proxy floors + path doglegs. No new districts.</summary>
+        void Build20MinPack()
+        {
+            var root = new GameObject("Pass4_20min").transform;
+            root.SetParent(_root, false);
+            var navC = new Color(0.2f, 0.45f, 0.28f);
+            var arenaFloor = new Color(0.55f, 0.22f, 0.18f);
+            var cover = new Color(0.4f, 0.38f, 0.35f);
+
+            // --- Nav proxy floors along spine (Eng bakes) ---
+            Box("Nav_Spine_S0_S1", new Vector3(150f, 0.02f, 85f), new Vector3(100f, 0.04f, 14f), navC, root);
+            Box("Nav_Spine_S1_S2", new Vector3(200f, 0.02f, 120f), new Vector3(220f, 0.04f, 12f), navC, root);
+            Box("Nav_Spine_S2_S3", new Vector3(250f, 0.02f, 155f), new Vector3(120f, 0.04f, 14f), navC, root);
+            Box("Nav_Spine_S3_S4", new Vector3(200f, 0.02f, 205f), new Vector3(16f, 0.04f, 55f), navC, root);
+            Box("Nav_Spine_S4_S5", new Vector3(245f, 0.02f, 236f), new Vector3(95f, 0.04f, 14f), navC, root);
+            Box("Nav_Boardwalk", new Vector3(200f, 0.02f, 60f), new Vector3(80f, 0.04f, 30f), navC, root);
+            Box("Nav_Junction", new Vector3(200f, 0.02f, 180f), new Vector3(100f, 0.04f, 36f), navC, root);
+            Box("Nav_Hideout_Interior", new Vector3(293f, 0.02f, 240f), new Vector3(90f, 0.04f, 45f), navC, root);
+
+            // --- Arena_A @ S2 alley (~18×12) ---
+            var aA = new GameObject("Arena_A").transform;
+            aA.SetParent(root, false);
+            Box("Arena_A_Floor", new Vector3(307f, 0.05f, 140f), new Vector3(18f, 0.1f, 12f), arenaFloor, aA);
+            Box("Arena_A_Cover_1", new Vector3(301f, 0.6f, 138f), new Vector3(2.5f, 1.2f, 1.2f), cover, aA);
+            Box("Arena_A_Cover_2", new Vector3(313f, 0.6f, 142f), new Vector3(2.5f, 1.2f, 1.2f), cover, aA);
+            Box("Arena_A_Cover_3", new Vector3(307f, 0.6f, 145f), new Vector3(3f, 1.1f, 1.2f), cover, aA);
+            Box("Arena_A_Mantle", new Vector3(307f, 1.2f, 134f), new Vector3(4f, 0.4f, 1.2f), cover, aA);
+            Box("Nav_Arena_A", new Vector3(307f, 0.02f, 140f), new Vector3(20f, 0.04f, 14f), navC, aA);
+
+            // --- Arena_B @ Junction (~28×20) west of gate ---
+            var aB = new GameObject("Arena_B").transform;
+            aB.SetParent(root, false);
+            Box("Arena_B_Floor", new Vector3(160f, 0.05f, 178f), new Vector3(28f, 0.1f, 20f), arenaFloor, aB);
+            Box("Arena_B_Rim_1", new Vector3(148f, 0.5f, 170f), new Vector3(3f, 1f, 2f), cover, aB);
+            Box("Arena_B_Rim_2", new Vector3(172f, 0.5f, 186f), new Vector3(3f, 1f, 2f), cover, aB);
+            Box("Arena_B_Rim_3", new Vector3(155f, 0.5f, 188f), new Vector3(4f, 1f, 2f), cover, aB);
+            Box("Nav_Arena_B", new Vector3(160f, 0.02f, 178f), new Vector3(30f, 0.04f, 22f), navC, aB);
+
+            // --- Arena_C linear S4→door (~40×12) ---
+            var aC = new GameObject("Arena_C").transform;
+            aC.SetParent(root, false);
+            Box("Arena_C_Floor", new Vector3(220f, 0.05f, 236f), new Vector3(40f, 0.1f, 12f), arenaFloor, aC);
+            Box("Arena_C_Rib_1", new Vector3(210f, 0.6f, 231f), new Vector3(2f, 1.2f, 1.5f), cover, aC);
+            Box("Arena_C_Rib_2", new Vector3(220f, 0.6f, 241f), new Vector3(2f, 1.2f, 1.5f), cover, aC);
+            Box("Arena_C_Rib_3", new Vector3(230f, 0.6f, 231f), new Vector3(2f, 1.2f, 1.5f), cover, aC);
+            Box("Arena_C_Rib_4", new Vector3(235f, 0.6f, 241f), new Vector3(2f, 1.2f, 1.5f), cover, aC);
+            Box("Arena_C_SideBay", new Vector3(218f, 0.05f, 248f), new Vector3(10f, 0.1f, 8f), arenaFloor, aC);
+            Box("Nav_Arena_C", new Vector3(220f, 0.02f, 238f), new Vector3(44f, 0.04f, 22f), navC, aC);
+
+            // --- Arena_D hideout interior ---
+            var aD = new GameObject("Arena_D").transform;
+            aD.SetParent(root, false);
+            Box("Arena_D_HallMark", new Vector3(270f, 0.06f, 240f), new Vector3(36f, 0.08f, 6f), arenaFloor, aD);
+            Box("Arena_D_RoomN_Mark", new Vector3(310f, 0.06f, 255f), new Vector3(20f, 0.08f, 12f), arenaFloor, aD);
+            Box("Arena_D_RoomS_Mark", new Vector3(310f, 0.06f, 225f), new Vector3(20f, 0.08f, 12f), arenaFloor, aD);
+            Box("Arena_D_Cover_Crate", new Vector3(280f, 0.7f, 243f), new Vector3(2f, 1.4f, 2f), cover, aD);
+            Box("Arena_D_Cover_Crate2", new Vector3(300f, 0.7f, 237f), new Vector3(2f, 1.4f, 2f), cover, aD);
+            Box("Nav_Arena_D", new Vector3(290f, 0.02f, 240f), new Vector3(70f, 0.04f, 40f), navC, aD);
+
+            // --- Path doglegs (anti-teleport stubs) still in-ward ---
+            var dog = new Color(0.55f, 0.48f, 0.22f);
+            Box("Dogleg_S0_S1", new Vector3(160f, 0.08f, 70f), new Vector3(3f, 0.08f, 28f), dog, root);
+            Box("Dogleg_S1_S2_N", new Vector3(200f, 0.08f, 130f), new Vector3(3f, 0.08f, 20f), dog, root);
+            Box("Dogleg_S2_S3_W", new Vector3(260f, 0.08f, 160f), new Vector3(40f, 0.08f, 3f), dog, root);
+            Box("Dogleg_S4_bay", new Vector3(205f, 0.08f, 245f), new Vector3(3f, 0.08f, 16f), dog, root);
         }
 
         GameObject Box(string name, Vector3 pos, Vector3 scale, Color color, Transform parent = null)

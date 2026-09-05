@@ -25,7 +25,8 @@
 
 - `Docs/Riverward-graybox-v0.md` — meters, sockets S0–S5, hideout, Blackout props
 - `Docs/Riverward-spine-v0.svg` + `Docs/Riverward-spine-v0.md` — spine map
-- Runtime: `Assets/Scripts/Level/RiverwardBootstrap.cs` (pass 2 graybox)
+- Runtime: `Assets/Scripts/Level/RiverwardBootstrap.cs` (pass 4 / ~20 min arenas + Nav_*)
+- `Docs/Riverward-20min-pacing-v0.md` — time-per-socket + fight beats
 
 ## Out of slice
 
