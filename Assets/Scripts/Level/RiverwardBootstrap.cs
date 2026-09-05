@@ -22,7 +22,7 @@ namespace HeroCity.Level
             (MissionNodeId.S2_AlleyRoof, "S2_AlleyRoof", new Vector3(307f, 0f, 127f), new Vector3(10f, 1f, 10f)),
             (MissionNodeId.S3_Junction, "S3_Junction", new Vector3(200f, 0f, 180f), new Vector3(16f, 1f, 16f)),
             (MissionNodeId.S4_WarehouseApproach, "S4_WarehouseApproach", new Vector3(200f, 0f, 233f), new Vector3(12f, 1f, 12f)),
-            (MissionNodeId.S5_Hideout, "S5_Hideout", new Vector3(293f, 0f, 240f), new Vector3(4f, 1f, 4f)),
+            (MissionNodeId.S5_Hideout, "S5_Hideout", new Vector3(246f, 0f, 240f), new Vector3(14f, 1f, 12f)), // door threshold apron (was 4x4@293 missable)
         };
 
         void Awake()
@@ -152,7 +152,7 @@ namespace HeroCity.Level
                 (new Vector3(107f, 0f, 113f), new Vector3(307f, 0f, 127f)),
                 (new Vector3(307f, 0f, 127f), new Vector3(200f, 0f, 180f)),
                 (new Vector3(200f, 0f, 180f), new Vector3(200f, 0f, 233f)),
-                (new Vector3(200f, 0f, 233f), new Vector3(293f, 0f, 240f)),
+                (new Vector3(200f, 0f, 233f), new Vector3(246f, 0f, 240f)),
             };
             for (int i = 0; i < segs.Length; i++)
             {
@@ -166,13 +166,17 @@ namespace HeroCity.Level
                 go.transform.rotation = Quaternion.Euler(0f, yaw, 0f);
             }
             // S4→door sightline chevrons (keep east of X=200 approach clear)
-            // Lead S4 → west door face (~X=240), not deep interior
-            Box("Approach_Chevron_1", new Vector3(212f, 0.1f, 234f), new Vector3(4f, 0.1f, 2f),
+            // Lead S4 → west door face (~X=240) — denser chevrons + apron
+            Box("Approach_Chevron_1", new Vector3(208f, 0.1f, 234f), new Vector3(5f, 0.12f, 2.5f),
                 new Color(0.75f, 0.3f, 0.2f), path);
-            Box("Approach_Chevron_2", new Vector3(224f, 0.1f, 237f), new Vector3(4f, 0.1f, 2f),
+            Box("Approach_Chevron_2", new Vector3(218f, 0.1f, 236f), new Vector3(5f, 0.12f, 2.5f),
                 new Color(0.75f, 0.3f, 0.2f), path);
-            Box("Approach_Chevron_3", new Vector3(235f, 0.1f, 239f), new Vector3(4f, 0.1f, 2f),
+            Box("Approach_Chevron_3", new Vector3(228f, 0.1f, 238f), new Vector3(5f, 0.12f, 2.5f),
                 new Color(0.75f, 0.3f, 0.2f), path);
+            Box("Approach_Chevron_4", new Vector3(238f, 0.1f, 240f), new Vector3(5f, 0.12f, 2.5f),
+                new Color(0.85f, 0.25f, 0.15f), path);
+            Box("Approach_Apron", new Vector3(246f, 0.08f, 240f), new Vector3(16f, 0.12f, 14f),
+                new Color(0.7f, 0.28f, 0.18f), path);
         }
 
         void BuildNodes()
@@ -186,7 +190,7 @@ namespace HeroCity.Level
                     new Vector3(n.size.x, 0.12f, n.size.z), ColorFor(n.id), sockets);
 
                 // Readable landmark pole (S5 uses door-scale pad — taller mark)
-                float markH = n.id == MissionNodeId.S5_Hideout ? 5f : 4f;
+                float markH = n.id == MissionNodeId.S5_Hideout ? 8f : 4f;
                 Box(n.name + "_Landmark", n.pos + new Vector3(0f, markH * 0.5f, 0f),
                     new Vector3(1.5f, markH, 1.5f), ColorFor(n.id) * 0.75f, sockets);
 
@@ -197,7 +201,14 @@ namespace HeroCity.Level
                 box.isTrigger = true;
                 float vx = Mathf.Max(n.size.x * 0.95f, 6f);
                 float vz = Mathf.Max(n.size.z * 0.95f, 6f);
-                box.size = new Vector3(vx, 5f, vz);
+                float vy = 5f;
+                if (n.id == MissionNodeId.S5_Hideout)
+                {
+                    vx = Mathf.Max(vx, 14f);
+                    vz = Mathf.Max(vz, 12f);
+                    vy = 6f;
+                }
+                box.size = new Vector3(vx, vy, vz);
                 vol.AddComponent<MissionVolume>().Configure(n.id);
             }
         }
@@ -218,7 +229,7 @@ namespace HeroCity.Level
             Box("Hideout_Wall_E", new Vector3(cx + halfW, wallH * 0.5f, cz), new Vector3(thick, wallH, halfD * 2f), shell, hide);
 
             // West wall split around door (door ~4 m at Z=240)
-            float doorHalf = 2.2f;
+            float doorHalf = 4.0f; // was 2.2 — Eng: 4x4 pad missable, enlarge door read
             float westX = cx - halfW;
             float northSegZ = (cz + halfD + cz + doorHalf) * 0.5f;
             float northSegD = halfD - doorHalf;
@@ -232,14 +243,16 @@ namespace HeroCity.Level
             Box("Hideout_Door_Lintel", new Vector3(westX, 4.2f, cz),
                 new Vector3(thick, 1.2f, doorHalf * 2f), shell, hide);
             var doorRead = new Color(0.85f, 0.25f, 0.18f);
-            Box("Hideout_DoorFrame_L", new Vector3(westX - 0.2f, 2f, cz - doorHalf - 0.4f),
-                new Vector3(0.5f, 4f, 0.5f), doorRead, hide);
-            Box("Hideout_DoorFrame_R", new Vector3(westX - 0.2f, 2f, cz + doorHalf + 0.4f),
-                new Vector3(0.5f, 4f, 0.5f), doorRead, hide);
-            Box("Hideout_DoorFrame_Top", new Vector3(westX - 0.2f, 4.6f, cz),
-                new Vector3(0.5f, 0.5f, doorHalf * 2f + 1.2f), doorRead, hide);
-            Box("Hideout_DoorBeacon", new Vector3(westX - 1.5f, 7.5f, cz),
-                new Vector3(1.2f, 3f, 1.2f), doorRead, hide);
+            Box("Hideout_DoorFrame_L", new Vector3(westX - 0.3f, 3f, cz - doorHalf - 0.6f),
+                new Vector3(0.8f, 6f, 0.8f), doorRead, hide);
+            Box("Hideout_DoorFrame_R", new Vector3(westX - 0.3f, 3f, cz + doorHalf + 0.6f),
+                new Vector3(0.8f, 6f, 0.8f), doorRead, hide);
+            Box("Hideout_DoorFrame_Top", new Vector3(westX - 0.3f, 6.2f, cz),
+                new Vector3(0.8f, 0.8f, doorHalf * 2f + 2f), doorRead, hide);
+            Box("Hideout_DoorBeacon", new Vector3(westX - 2f, 9f, cz),
+                new Vector3(2.2f, 6f, 2.2f), doorRead, hide);
+            Box("Hideout_DoorBeacon_Cap", new Vector3(westX - 2f, 12.5f, cz),
+                new Vector3(3.5f, 1f, 3.5f), doorRead, hide);
 
             // Roof deck Y≈10
             Box("Hideout_Roof", new Vector3(cx, 10.2f, cz), new Vector3(halfW * 2f - 1f, 0.4f, halfD * 2f - 1f),

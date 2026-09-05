@@ -19,7 +19,7 @@
 | `Socket_S2` | (307, 127) | 10×10 | C2 Pattern — alley / 1–2F roof |
 | `Socket_S3` | (200, 180) | 16×16 | C3 Funnel — precinct-edge Junction |
 | `Socket_S4` | (200, 233) | 12×12 | C4 Door — dock approach |
-| `Socket_S5` | (293, 240) | door 4×4 | N1 — hideout entry |
+| `Socket_S5` | (246, 240) door apron | **14×12** (was 4×4 missable) | N1 — hideout west-door threshold |
 | `Socket_C5_Exit` | (200, 200) | 8×8 | C5 Aftertaste — Junction/Strip |
 
 Mission path: S0→S1→S2→S3→S4→S5→C5_Exit.
@@ -54,6 +54,9 @@ Spine path ribbons · S2 stair/mantle stubs · S5 door frame/beacon for ~40 m re
 
 ## Unity pass 3 (2026-09-04)
 Ferry/S0 Call landmark · alley connectors X≈93/200/307 · hideout interior hall/rooms + roof stair stubs · bodega interior hint.
+
+## S5 door fix (2026-09-05)
+Pad moved to west-door threshold ~(246,240), **14×12** apron + wider door (8 m) + taller beacon for ~40 m S4 read. Interior (293,240) remains hideout center — volume fires at door.
 
 ## Success
 Walk S0→S5 using landmarks only in <150 s without combat. Door readable from S4 at 40 m. Water always reorients.
