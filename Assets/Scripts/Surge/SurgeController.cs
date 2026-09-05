@@ -28,6 +28,10 @@ namespace HeroCity.Surge
         int _zipCharges = 2;
         string _last = "-";
         string _implOrder = "stub focus: Cap Mine+Cell → Arc Seed → Field Puck → supers";
+        const float ArcSeedDmg = 22f;
+        const float CapMineDmg = 28f;
+        const float FieldTickDmg = 4f;
+
 
         void Start()
         {
@@ -92,6 +96,7 @@ namespace HeroCity.Surge
                     break;
             }
             Debug.Log("[SURGE] " + _last);
+            ApplyGrenadeFx();
         }
 
         void FireUtility()
@@ -146,6 +151,27 @@ namespace HeroCity.Surge
             _last = $"Cell dump stub ×{_cells} (bind toward Cap Mine / nova path)";
             Debug.Log("[SURGE] " + _last);
             _cells = 0;
+        }
+
+        public void NotifyPoweredKill(bool elite)
+        {
+            if (variant == SurgeVariantId.Capacitor)
+                _cells = Mathf.Min(5, _cells + (elite ? 2 : 1));
+        }
+
+        void ApplyGrenadeFx()
+        {
+            Vector3 origin = transform.position + transform.forward * 2f + Vector3.up;
+            float radius = variant == SurgeVariantId.StaticField ? 5f : 8f;
+            float dmg = variant == SurgeVariantId.Capacitor ? CapMineDmg
+                : variant == SurgeVariantId.Chainjack ? ArcSeedDmg : FieldTickDmg * 3f;
+            foreach (var h in FindObjectsByType<HeroCity.Combat.Hostile>(FindObjectsSortMode.None))
+            {
+                if (h == null || !h.Alive) continue;
+                if ((h.transform.position - origin).sqrMagnitude > radius * radius) continue;
+                h.ApplyJolt(variant == SurgeVariantId.Chainjack ? 1.5f : 0.8f);
+                h.TakeDamage(dmg, true);
+            }
         }
 
         void OnGUI()

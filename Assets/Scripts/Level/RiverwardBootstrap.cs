@@ -3,6 +3,7 @@ using HeroCity.Player;
 using HeroCity.Mission;
 using HeroCity.Surge;
 using HeroCity.Narrative;
+using HeroCity.Combat;
 
 namespace HeroCity.Level
 {
@@ -430,6 +431,8 @@ namespace HeroCity.Level
             go.transform.position = Nodes[0].pos + new Vector3(0f, 1f, -6f);
             go.AddComponent<ThirdPersonMotor>();
             go.AddComponent<SurgeController>();
+            go.AddComponent<PlayerHealth>();
+            go.AddComponent<PlayerCombat>();
 
             var camGo = new GameObject("Main Camera");
             camGo.tag = "MainCamera";
@@ -445,6 +448,20 @@ namespace HeroCity.Level
                 new GameObject("MissionChain").AddComponent<MissionChainController>();
             if (FindFirstObjectByType<NemesisIntroHook>() == null)
                 new GameObject("NemesisIntro").AddComponent<NemesisIntroHook>();
+            if (FindFirstObjectByType<EncounterDirector>() == null)
+                new GameObject("Encounters").AddComponent<EncounterDirector>();
+            if (FindFirstObjectByType<NemesisFight>() == null)
+                new GameObject("NemesisFight").AddComponent<NemesisFight>();
+            if (FindFirstObjectByType<ObjectiveHud>() == null)
+                new GameObject("ObjectiveHud").AddComponent<ObjectiveHud>();
+
+            var player = GameObject.Find("Player");
+            if (player != null)
+            {
+                EncounterDirector.Instance?.SetPlayer(player.transform);
+                // Kick S0 wave after short beat
+                MissionChainController.Instance?.TryAdvance(MissionNodeId.S0_Boardwalk);
+            }
         }
     }
 }

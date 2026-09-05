@@ -34,8 +34,10 @@ namespace HeroCity.Narrative
                 Debug.Log("[Nemesis] " + s);
                 yield return new WaitForSeconds(1.6f);
             }
-            _beat = "N1 complete — The Watcher left alive · C5 stub fired";
+            _beat = "N1 complete — The Watcher left alive · C5 Aftertaste";
             _running = false;
+            HeroCity.Mission.MissionChainController.Instance?.MarkStoryComplete();
+            FindFirstObjectByType<HeroCity.Combat.ObjectiveHud>()?.SetComplete();
         }
 
         void OnGUI()
