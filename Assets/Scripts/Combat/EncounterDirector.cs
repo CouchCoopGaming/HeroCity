@@ -4,7 +4,7 @@ using HeroCity.Mission;
 
 namespace HeroCity.Combat
 {
-    /// <summary>Gates mission advance until wave cleared. Paces ~20 min SP demo.</summary>
+    /// <summary>Gates mission advance until wave cleared. Spawns at Arena_A–D centers. SP only.</summary>
     public class EncounterDirector : MonoBehaviour
     {
         public static EncounterDirector Instance { get; private set; }
@@ -15,15 +15,15 @@ namespace HeroCity.Combat
         string _status = "Reach C1 Call (S0)";
         Transform _player;
 
-        // Wave sizes tuned for ~20 min with travel + SURGE learning
+        // Slightly larger waves for ~20 min pacing
         static readonly Dictionary<MissionNodeId, (int trash, int elite)> Waves = new()
         {
-            { MissionNodeId.S0_Boardwalk, (3, 0) },
-            { MissionNodeId.S1_Bodega, (5, 0) },
-            { MissionNodeId.S2_AlleyRoof, (5, 1) },
-            { MissionNodeId.S3_Junction, (6, 1) },
-            { MissionNodeId.S4_WarehouseApproach, (6, 2) },
-            { MissionNodeId.S5_Hideout, (4, 1) }, // prelude before Watcher
+            { MissionNodeId.S0_Boardwalk, (4, 0) },
+            { MissionNodeId.S1_Bodega, (5, 1) },
+            { MissionNodeId.S2_AlleyRoof, (6, 1) },
+            { MissionNodeId.S3_Junction, (7, 2) },
+            { MissionNodeId.S4_WarehouseApproach, (8, 2) },
+            { MissionNodeId.S5_Hideout, (5, 1) }, // prelude before Blackout
         };
 
         public bool WaveClear => !_waveActive || _alive.Count == 0;
@@ -35,6 +35,7 @@ namespace HeroCity.Combat
 
         public void OnEnteredNode(MissionNodeId node)
         {
+            if (node == MissionNodeId.C5_Aftertaste) return;
             if (_waveActive && !WaveClear) return; // softlock guard: ignore until clear
             if ((int)node < (int)_activeNode) return;
 
@@ -48,21 +49,23 @@ namespace HeroCity.Combat
             if (!Waves.TryGetValue(node, out var w)) w = (3, 0);
             _waveActive = true;
             _status = $"Clear hostiles at {node} ({w.trash}+{w.elite} elite)";
-            Vector3 center = NodePos(node);
+            Vector3 center = SpawnCenter(node);
             for (int i = 0; i < w.trash; i++)
                 Spawn(center, 32f, false);
             for (int i = 0; i < w.elite; i++)
                 Spawn(center, 55f, true);
-            Debug.Log($"[Encounter] Wave {node} trash={w.trash} elite={w.elite}");
+            Debug.Log($"[Encounter] Wave {node} trash={w.trash} elite={w.elite} @ {center}");
         }
 
-        Vector3 NodePos(MissionNodeId id) => id switch
+        /// <summary>Arena-ish spawn centers; others at mission node.</summary>
+        Vector3 SpawnCenter(MissionNodeId id) => id switch
         {
             MissionNodeId.S0_Boardwalk => new Vector3(200f, 0f, 60f),
             MissionNodeId.S1_Bodega => new Vector3(107f, 0f, 113f),
-            MissionNodeId.S2_AlleyRoof => new Vector3(307f, 0f, 127f),
-            MissionNodeId.S3_Junction => new Vector3(200f, 0f, 180f),
-            MissionNodeId.S4_WarehouseApproach => new Vector3(200f, 0f, 233f),
+            MissionNodeId.S2_AlleyRoof => new Vector3(307f, 0f, 140f), // Arena_A
+            MissionNodeId.S3_Junction => new Vector3(160f, 0f, 178f),  // Arena_B
+            MissionNodeId.S4_WarehouseApproach => new Vector3(220f, 0f, 236f), // Arena_C
+            MissionNodeId.S5_Hideout => new Vector3(280f, 0f, 240f), // Arena_D
             _ => new Vector3(293f, 0f, 240f)
         };
 
@@ -70,6 +73,7 @@ namespace HeroCity.Combat
         {
             var go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             go.name = elite ? "Elite" : "Trash";
+            // Remove mesh collider; Hostile.Awake adds non-trigger CapsuleCollider for LMB hits
             Object.Destroy(go.GetComponent<Collider>());
             float ang = Random.Range(0f, 360f) * Mathf.Deg2Rad;
             float rad = Random.Range(3.5f, 7f);
@@ -87,7 +91,7 @@ namespace HeroCity.Combat
             {
                 _waveActive = false;
                 _status = _activeNode == MissionNodeId.S5_Hideout
-                    ? "Wave clear — face The Watcher"
+                    ? "Wave clear — face Blackout (VO.N1.Reveal)"
                     : $"Clear — advance toward next beat";
                 MissionChainController.Instance?.NotifyWaveCleared(_activeNode);
                 if (_activeNode == MissionNodeId.S5_Hideout)
@@ -105,7 +109,7 @@ namespace HeroCity.Combat
         void Update()
         {
             ClearDead();
-            // Softlock escape: hold K  to skip wave (debug)
+            // Softlock escape: hold K to skip wave (debug)
             if (_waveActive && Input.GetKeyDown(KeyCode.K))
             {
                 foreach (var h in _alive.ToArray())

@@ -1,17 +1,22 @@
 using UnityEngine;
 using System.Collections;
+using HeroCity.Mission;
 
 namespace HeroCity.Narrative
 {
-    /// <summary>N1 hideout intro — The Watcher (placeholder). SP only, no co-op story.</summary>
+    /// <summary>N1 Blackout outro beats after disengage. SP only. Marks story complete once.</summary>
     public class NemesisIntroHook : MonoBehaviour
     {
         bool _running;
-        string _beat = "waiting N1 (S5 hideout)";
+        bool _done;
+        string _beat = "waiting N1 (S5 hideout · Blackout)";
 
-        public void BeginIntro()
+        /// <summary>Legacy name — routes to outro after fight disengage.</summary>
+        public void BeginIntro() => BeginOutro();
+
+        public void BeginOutro()
         {
-            if (_running) return;
+            if (_running || _done) return;
             StartCoroutine(Run());
         }
 
@@ -20,23 +25,21 @@ namespace HeroCity.Narrative
             _running = true;
             string[] steps =
             {
-                "N1 Arrival — warehouse air goes thin",
-                "N1 Reveal — The Watcher steps from breaker shadow",
-                "N1 Grade — cites C1–C3 / ozone tells along the chain",
-                "N1 Clash — teach exchange (placeholder; leave alive)",
-                "N1 Exit — calling card; lights die a beat",
-                "N1 Hook — \"You matter to a block. One person noticed.\"",
+                "VO.N1.Exit — warehouse air thins; lights die a beat",
+                "VO.N1.Hook — \"You matter to a block. One person noticed.\"",
                 "C5 Aftertaste — thanks/warn; Strip blinked (stub)"
             };
             foreach (var s in steps)
             {
                 _beat = s;
-                Debug.Log("[Nemesis] " + s);
+                Debug.Log("[Blackout] " + s);
                 yield return new WaitForSeconds(1.6f);
             }
-            _beat = "N1 complete — The Watcher left alive · C5 Aftertaste";
+            _beat = "N1 complete — Blackout left · C5 Aftertaste";
             _running = false;
-            HeroCity.Mission.MissionChainController.Instance?.MarkStoryComplete();
+            _done = true;
+            MissionChainController.Instance?.MarkStoryComplete();
+            // Single SetComplete from outro — avoid double-call from fight
             FindFirstObjectByType<HeroCity.Combat.ObjectiveHud>()?.SetComplete();
         }
 

@@ -134,7 +134,7 @@ namespace HeroCity.Level
             Box("Elevator_L3", new Vector3(347f, 20f, 250f), new Vector3(8f, 40f, 8f),
                 new Color(0.55f, 0.5f, 0.35f), mass);
 
-            // C5 aftertaste pad (landmark only — no MissionNodeId yet)
+            // Legacy C5 landmark at Junction (active C5 volume is at door approach)
             Box("C5_Exit_Pad", new Vector3(200f, 0.08f, 200f), new Vector3(8f, 0.1f, 8f),
                 new Color(0.6f, 0.55f, 0.7f), mass);
         }
@@ -194,6 +194,11 @@ namespace HeroCity.Level
                 Box(n.name + "_Landmark", n.pos + new Vector3(0f, markH * 0.5f, 0f),
                     new Vector3(1.5f, markH, 1.5f), ColorFor(n.id) * 0.75f, sockets);
 
+                // S5: do NOT put MissionVolume on the interior/apron pad alone —
+                // door volume is built separately at the west door gap.
+                if (n.id == MissionNodeId.S5_Hideout)
+                    continue;
+
                 var vol = new GameObject(n.name + "_Volume");
                 vol.transform.SetParent(sockets, false);
                 vol.transform.position = n.pos + Vector3.up * 1.5f;
@@ -202,15 +207,45 @@ namespace HeroCity.Level
                 float vx = Mathf.Max(n.size.x * 0.95f, 6f);
                 float vz = Mathf.Max(n.size.z * 0.95f, 6f);
                 float vy = 5f;
-                if (n.id == MissionNodeId.S5_Hideout)
-                {
-                    vx = Mathf.Max(vx, 14f);
-                    vz = Mathf.Max(vz, 12f);
-                    vy = 6f;
-                }
                 box.size = new Vector3(vx, vy, vz);
                 vol.AddComponent<MissionVolume>().Configure(n.id);
             }
+
+            BuildHideoutDoorAndC5(sockets);
+        }
+
+        /// <summary>S5 door volume + solid blocker (DoorUnlocked) + C5 Aftertaste pad.</summary>
+        void BuildHideoutDoorAndC5(Transform sockets)
+        {
+            // West door gap ~X=240, Z=240 — MissionVolume requires DoorUnlocked
+            var doorVol = new GameObject("Hideout_Door_Volume");
+            doorVol.transform.SetParent(sockets, false);
+            doorVol.transform.position = new Vector3(240f, 1.5f, 240f);
+            var doorBox = doorVol.AddComponent<BoxCollider>();
+            doorBox.isTrigger = true;
+            doorBox.size = new Vector3(4f, 5f, 5f);
+            doorVol.AddComponent<MissionVolume>().Configure(MissionNodeId.S5_Hideout, requireDoor: true);
+
+            // Physical door blocker filling the gap (solid collider, red-tinted)
+            var blocker = Box("Hideout_Door_Blocker", new Vector3(240f, 2.5f, 240f),
+                new Vector3(1.4f, 5f, 7.5f), new Color(0.85f, 0.2f, 0.15f, 1f), sockets);
+            // Ensure solid (non-trigger) collider remains
+            var bc = blocker.GetComponent<BoxCollider>();
+            if (bc != null) bc.isTrigger = false;
+            blocker.AddComponent<DoorUnlockController>();
+
+            // C5 Aftertaste pad just outside door approach (~250, 0, 240) — no door gate
+            Box("C5_Aftertaste_Pad", new Vector3(250f, 0.08f, 240f), new Vector3(8f, 0.12f, 8f),
+                new Color(0.6f, 0.55f, 0.7f), sockets);
+            Box("C5_Aftertaste_Landmark", new Vector3(250f, 2.5f, 240f), new Vector3(1.2f, 5f, 1.2f),
+                new Color(0.55f, 0.45f, 0.7f), sockets);
+            var c5 = new GameObject("C5_Aftertaste_Volume");
+            c5.transform.SetParent(sockets, false);
+            c5.transform.position = new Vector3(250f, 1.5f, 240f);
+            var c5box = c5.AddComponent<BoxCollider>();
+            c5box.isTrigger = true;
+            c5box.size = new Vector3(8f, 5f, 8f);
+            c5.AddComponent<MissionVolume>().Configure(MissionNodeId.C5_Aftertaste, requireDoor: false);
         }
 
         void BuildHideoutShell()
@@ -428,6 +463,7 @@ namespace HeroCity.Level
             MissionNodeId.S2_AlleyRoof => new Color(0.45f, 0.45f, 0.5f),
             MissionNodeId.S3_Junction => new Color(0.55f, 0.4f, 0.55f),
             MissionNodeId.S4_WarehouseApproach => new Color(0.5f, 0.35f, 0.3f),
+            MissionNodeId.C5_Aftertaste => new Color(0.6f, 0.55f, 0.7f),
             _ => new Color(0.75f, 0.25f, 0.2f)
         };
 

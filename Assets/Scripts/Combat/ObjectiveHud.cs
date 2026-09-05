@@ -37,13 +37,40 @@ namespace HeroCity.Combat
         void OnGUI()
         {
             float cx = Screen.width * 0.5f;
-            GUI.Box(new Rect(cx - 260, 8, 520, 50),
-                (_complete ? "[DONE] " : "[OBJ] ") + _obj);
+            const float boxW = 640f;
+
+            // Top center: big [OBJ] line
+            string prefix = _complete ? "[DONE] " : "[OBJ] ";
+            GUI.Box(new Rect(cx - boxW * 0.5f, 8, boxW, 54), prefix + _obj);
+
+            // Subline: EncounterDirector status
+            var enc = EncounterDirector.Instance;
+            if (enc != null && !string.IsNullOrEmpty(enc.Status))
+                GUI.Box(new Rect(cx - boxW * 0.5f, 66, boxW, 28), enc.Status);
+
+            // Left: mission beat label from chain
+            var chain = MissionChainController.Instance;
+            if (chain != null)
+            {
+                string beat = MissionChainController.StoryLabel(chain.Current);
+                string door = chain.DoorUnlocked ? " · door open" : "";
+                GUI.Box(new Rect(12, 44, 300, 28), "Beat: " + beat + door);
+            }
+
+            // HP bar
             if (_hp != null)
-                GUI.Box(new Rect(12, Screen.height - 36, 200, 24), $"HP {_hp.Hp01*100:0}%");
+            {
+                float hpW = 220f;
+                GUI.Box(new Rect(12, Screen.height - 40, hpW, 28), $"HP {_hp.Hp01 * 100f:0}%");
+                GUI.DrawTexture(new Rect(16, Screen.height - 18, (hpW - 8) * _hp.Hp01, 6), Texture2D.whiteTexture);
+            }
+
             if (_hp != null && !_hp.Alive)
                 GUI.Box(new Rect(cx - 100, Screen.height * 0.5f, 200, 40), "DOWN — press R");
-            GUI.Label(new Rect(Screen.width - 220, Screen.height - 28, 210, 24), "Esc pause · K skip wave");
+
+            // Controls hint
+            GUI.Label(new Rect(Screen.width - 280, Screen.height - 28, 270, 24),
+                "LMB Arc · Q/E/F SURGE · Esc pause · K skip");
         }
     }
 }

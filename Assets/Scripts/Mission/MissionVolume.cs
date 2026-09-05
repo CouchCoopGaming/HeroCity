@@ -1,4 +1,5 @@
 using UnityEngine;
+using HeroCity.Combat;
 
 namespace HeroCity.Mission
 {
@@ -6,10 +7,12 @@ namespace HeroCity.Mission
     public class MissionVolume : MonoBehaviour
     {
         [SerializeField] MissionNodeId node;
+        [SerializeField] bool requireDoorUnlocked;
 
-        public void Configure(MissionNodeId id)
+        public void Configure(MissionNodeId id, bool requireDoor = false)
         {
             node = id;
+            requireDoorUnlocked = requireDoor;
             var col = GetComponent<Collider>();
             col.isTrigger = true;
         }
@@ -18,6 +21,18 @@ namespace HeroCity.Mission
         {
             if (!other.CompareTag("Player") && other.GetComponentInParent<HeroCity.Player.ThirdPersonMotor>() == null)
                 return;
+
+            if (requireDoorUnlocked)
+            {
+                var chain = MissionChainController.Instance;
+                if (chain == null || !chain.DoorUnlocked)
+                {
+                    FindFirstObjectByType<ObjectiveHud>()?.SetObjective("Clear C4 / unlock door first");
+                    Debug.Log("[Mission] Door locked — refuse S5 until DoorUnlocked");
+                    return;
+                }
+            }
+
             MissionChainController.Instance?.TryAdvance(node);
         }
     }

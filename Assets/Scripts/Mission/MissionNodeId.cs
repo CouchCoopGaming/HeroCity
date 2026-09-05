@@ -7,6 +7,7 @@ namespace HeroCity.Mission
         S2_AlleyRoof = 2,
         S3_Junction = 3,
         S4_WarehouseApproach = 4,
-        S5_Hideout = 5
+        S5_Hideout = 5,
+        C5_Aftertaste = 6
     }
 }
