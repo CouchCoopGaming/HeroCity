@@ -1,5 +1,6 @@
 # Riverward ~20 min SP demo pacing v0
-**Owner:** Level · **Status:** GREENLIT — paper + graybox expand (Producer 2026-09-05)  
+**Owner:** Level · **Status:** GREENLIT (NOT STANDBY) — paper + Arena_A–D shipped
+**QA:** tip `dc5cc7c` · `RiverwardBootstrap.Build20MinPack` → `Pass4_20min` / `Arena_A`…`Arena_D` + `Nav_*`  
 **Refs:** `Riverward-graybox-v0.md` · `Riverward-spine-v0.md` · Narrative slice beats  
 **Constraints:** SP only · no new districts · no 2p density · no teleport stubs · Riverward 400×280 only
 
