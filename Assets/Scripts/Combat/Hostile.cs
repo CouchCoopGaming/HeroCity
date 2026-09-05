@@ -3,12 +3,13 @@ using HeroCity.Surge;
 
 namespace HeroCity.Combat
 {
-    /// <summary>SP trash/elite. Trash: chase + periodic strafe. Elite: HoldRange + projectile. No net.</summary>
+    /// <summary>SP trash/elite. CapsuleCollider for LMB raycasts. Trash strafe; Elite HoldRange + bolt.</summary>
     public class Hostile : MonoBehaviour
     {
         enum AiState { Chase, Strafe, HoldRange }
 
-        [SerializeField] float maxHp = 40f;
+        [SerializeField] float maxHp = 80f;
+        [SerializeField] float armor = 0f;
         [SerializeField] float move = 3.2f;
         [SerializeField] float damage = 6f;
         [SerializeField] float hitInterval = 1.1f;
@@ -18,29 +19,35 @@ namespace HeroCity.Combat
         float _jolt;
         float _hitCd;
         float _strafeTimer;
-        float _strafeDuration;
         float _projCd;
         float _stateTimer;
+        float _fieldSlow; // 0..1 slow fraction from Field Puck
         Vector3 _strafeDir;
         AiState _state = AiState.Chase;
         Transform _player;
         CharacterController _cc;
         float _vy;
+
         public bool Alive => _hp > 0f;
         public bool IsElite => elite;
-        public float Hp01 => Mathf.Clamp01(_hp / maxHp);
+        public float Hp01 => maxHp > 0f ? Mathf.Clamp01(_hp / maxHp) : 0f;
+        public bool IsJolted => _jolt > 0.15f;
+        public float Jolt => _jolt;
 
-        public void Configure(float hp, bool isElite, Transform player)
+        public void Configure(float hp, bool isElite, Transform player, float armorFlat = 0f)
         {
             maxHp = hp;
             _hp = hp;
+            armor = armorFlat;
             elite = isElite;
             _player = player;
             _state = isElite ? AiState.HoldRange : AiState.Chase;
             _projCd = Random.Range(0.4f, 1.0f);
+            _stateTimer = Random.Range(0.8f, 1.6f);
             var r = GetComponent<Renderer>();
             if (r != null)
                 r.material.color = isElite ? new Color(0.7f, 0.2f, 0.85f) : new Color(0.75f, 0.35f, 0.25f);
+            EnsureHitCollider();
         }
 
         void Awake()
@@ -49,8 +56,7 @@ namespace HeroCity.Combat
             _cc = GetComponent<CharacterController>();
             if (_cc == null) _cc = gameObject.AddComponent<CharacterController>();
             _cc.height = 1.8f; _cc.radius = 0.4f; _cc.center = new Vector3(0, 0.9f, 0);
-
-            // Raycast-hittable collider for PlayerCombat LMB (CC alone is not always raycastable)
+            // Raycast-hittable collider for PlayerCombat LMB (CC alone does not receive Physics.Raycast)
             EnsureHitCollider();
         }
 
@@ -63,12 +69,10 @@ namespace HeroCity.Combat
                 if (c != null && !c.isTrigger) { hit = c; break; }
             }
             if (hit == null)
-            {
                 hit = gameObject.AddComponent<CapsuleCollider>();
-            }
             hit.isTrigger = false;
             hit.height = 1.8f;
-            hit.radius = 0.45f;
+            hit.radius = 0.4f;
             hit.center = new Vector3(0f, 0.9f, 0f);
         }
 
@@ -85,18 +89,18 @@ namespace HeroCity.Combat
         {
             if (!Alive || _player == null) return;
             _jolt = Mathf.Max(0f, _jolt - Time.deltaTime * 0.35f);
+            _fieldSlow = Mathf.Max(0f, _fieldSlow - Time.deltaTime); // sticky until zone refreshes
             Vector3 to = _player.position - transform.position;
             to.y = 0f;
             float dist = to.magnitude;
             Vector3 toward = dist > 0.01f ? to.normalized : transform.forward;
-            float spdMul = _jolt > 0.2f ? 0.7f : 1f;
+            float spdMul = (_jolt > 0.2f ? 0.7f : 1f) * (1f - Mathf.Clamp01(_fieldSlow));
 
             if (elite)
                 TickElite(toward, dist, spdMul);
             else
                 TickTrash(toward, dist, spdMul);
 
-            // Melee contact (trash + close elite)
             _hitCd -= Time.deltaTime;
             if (dist < 1.6f && _hitCd <= 0f)
             {
@@ -114,16 +118,14 @@ namespace HeroCity.Combat
                 if (_stateTimer <= 0f && dist > 2f)
                 {
                     _state = AiState.Strafe;
-                    _strafeDuration = Random.Range(0.6f, 1.2f);
-                    _stateTimer = _strafeDuration;
-                    // Perpendicular strafe
+                    _stateTimer = Random.Range(0.6f, 1.2f);
                     _strafeDir = Vector3.Cross(Vector3.up, toward).normalized;
                     if (Random.value < 0.5f) _strafeDir = -_strafeDir;
                 }
                 Move(toward * move * spdMul);
                 Face(toward);
             }
-            else // Strafe
+            else
             {
                 Vector3 dir = (_strafeDir * 0.85f + toward * 0.25f).normalized;
                 Move(dir * move * 0.95f * spdMul);
@@ -144,19 +146,16 @@ namespace HeroCity.Combat
 
             if (dist < preferMin - 0.5f)
             {
-                // Back off
                 moveDir = -toward;
                 _state = AiState.HoldRange;
             }
             else if (dist > preferMax + 1f)
             {
-                // Slow chase into band
                 moveDir = toward;
                 _state = AiState.Chase;
             }
             else
             {
-                // Strafe within band
                 _state = AiState.HoldRange;
                 _strafeTimer -= Time.deltaTime;
                 if (_strafeTimer <= 0f)
@@ -173,7 +172,6 @@ namespace HeroCity.Combat
                 Move(moveDir.normalized * spd);
             Face(toward);
 
-            // Ranged projectile
             _projCd -= Time.deltaTime;
             if (_projCd <= 0f && dist > 2.2f && dist < 22f)
             {
@@ -217,7 +215,11 @@ namespace HeroCity.Combat
             _jolt = Mathf.Clamp(_jolt + amount, 0f, 5f);
         }
 
-        /// <summary>Capacitor Cell charge stub — optional hook for Cap Mine / Cell dump.</summary>
+        public void ApplyFieldSlow(float fraction01)
+        {
+            _fieldSlow = Mathf.Max(_fieldSlow, Mathf.Clamp01(fraction01));
+        }
+
         public void ApplyCellCharge(float amount)
         {
             ApplyJolt(amount * 0.5f);
@@ -226,9 +228,12 @@ namespace HeroCity.Combat
         public void TakeDamage(float amount, bool fromSurge = false)
         {
             if (!Alive) return;
+            float mitigated = Mathf.Max(0f, amount - armor * 0.15f);
             float mul = 1f + _jolt * 0.12f;
             if (fromSurge) mul += 0.25f;
-            _hp -= amount * mul;
+            // Field amp vs Jolted applied by FieldZone / Surge caller via fromSurge + jolt
+            if (IsJolted && _fieldSlow > 0.05f) mul += 0.15f;
+            _hp -= mitigated * mul;
             if (_hp <= 0f)
             {
                 _hp = 0f;
@@ -239,7 +244,7 @@ namespace HeroCity.Combat
             }
         }
 
-        /// <summary>Silent despawn for Blackout disengage (no kill credit / wave notify).</summary>
+        /// <summary>Silent despawn for Blackout disengage (no kill credit).</summary>
         public void ForceDespawn()
         {
             _hp = 0f;
@@ -257,7 +262,6 @@ namespace HeroCity.Combat
         }
     }
 
-    /// <summary>Simple elite projectile — damages PlayerHealth on trigger.</summary>
     public class EliteBolt : MonoBehaviour
     {
         Vector3 _vel;

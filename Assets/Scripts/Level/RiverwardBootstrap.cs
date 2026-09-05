@@ -214,34 +214,42 @@ namespace HeroCity.Level
             BuildHideoutDoorAndC5(sockets);
         }
 
-        /// <summary>S5 door volume + solid blocker (DoorUnlocked) + C5 Aftertaste pad.</summary>
+        /// <summary>S5 enlarged door apron volume + solid blocker (DoorUnlocked) + C5 Aftertaste pad.</summary>
         void BuildHideoutDoorAndC5(Transform sockets)
         {
-            // West door gap ~X=240, Z=240 — MissionVolume requires DoorUnlocked
+            // Large S5 apron volume at door (246,240) — at least 18×8×16, requireDoorUnlocked
+            var apronVol = new GameObject("S5_Hideout_Volume");
+            apronVol.transform.SetParent(sockets, false);
+            apronVol.transform.position = new Vector3(246f, 2f, 240f);
+            var apronBox = apronVol.AddComponent<BoxCollider>();
+            apronBox.isTrigger = true;
+            apronBox.size = new Vector3(18f, 8f, 16f);
+            apronVol.AddComponent<MissionVolume>().Configure(MissionNodeId.S5_Hideout, requireDoor: true);
+
+            // Dedicated door-gap volume (also gated)
             var doorVol = new GameObject("Hideout_Door_Volume");
             doorVol.transform.SetParent(sockets, false);
-            doorVol.transform.position = new Vector3(240f, 1.5f, 240f);
+            doorVol.transform.position = new Vector3(240f, 2f, 240f);
             var doorBox = doorVol.AddComponent<BoxCollider>();
             doorBox.isTrigger = true;
-            doorBox.size = new Vector3(4f, 5f, 5f);
+            doorBox.size = new Vector3(6f, 7f, 10f);
             doorVol.AddComponent<MissionVolume>().Configure(MissionNodeId.S5_Hideout, requireDoor: true);
 
-            // Physical door blocker filling the gap (solid collider, red-tinted)
+            // Physical door blocker filling west door gap (~X=240,Z=240)
             var blocker = Box("Hideout_Door_Blocker", new Vector3(240f, 2.5f, 240f),
                 new Vector3(1.4f, 5f, 7.5f), new Color(0.85f, 0.2f, 0.15f, 1f), sockets);
-            // Ensure solid (non-trigger) collider remains
             var bc = blocker.GetComponent<BoxCollider>();
             if (bc != null) bc.isTrigger = false;
-            blocker.AddComponent<DoorUnlockController>();
+            blocker.AddComponent<DoorBlocker>();
 
-            // C5 Aftertaste pad just outside door approach (~250, 0, 240) — no door gate
-            Box("C5_Aftertaste_Pad", new Vector3(250f, 0.08f, 240f), new Vector3(8f, 0.12f, 8f),
+            // C5 Aftertaste pad — outside, no door gate (after Blackout disengage)
+            Box("C5_Aftertaste_Pad", new Vector3(232f, 0.08f, 240f), new Vector3(8f, 0.12f, 8f),
                 new Color(0.6f, 0.55f, 0.7f), sockets);
-            Box("C5_Aftertaste_Landmark", new Vector3(250f, 2.5f, 240f), new Vector3(1.2f, 5f, 1.2f),
+            Box("C5_Aftertaste_Landmark", new Vector3(232f, 2.5f, 240f), new Vector3(1.2f, 5f, 1.2f),
                 new Color(0.55f, 0.45f, 0.7f), sockets);
             var c5 = new GameObject("C5_Aftertaste_Volume");
             c5.transform.SetParent(sockets, false);
-            c5.transform.position = new Vector3(250f, 1.5f, 240f);
+            c5.transform.position = new Vector3(232f, 1.5f, 240f);
             var c5box = c5.AddComponent<BoxCollider>();
             c5box.isTrigger = true;
             c5box.size = new Vector3(8f, 5f, 8f);

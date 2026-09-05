@@ -4,7 +4,7 @@ using HeroCity.Narrative;
 
 namespace HeroCity.Mission
 {
-    /// <summary>S0→S5→C5 chain. DoorUnlocked gates S5 after S4 wave clear. SP only.</summary>
+    /// <summary>S0→S5→C5 chain. DoorUnlocked gates S5 after S4 wave clear. Soft CK on S0/S3/S5. SP only.</summary>
     public class MissionChainController : MonoBehaviour
     {
         public static MissionChainController Instance { get; private set; }
@@ -13,7 +13,11 @@ namespace HeroCity.Mission
         public bool DoorUnlocked { get; private set; }
         bool _waveClearedForCurrent;
 
-        void Awake() => Instance = this;
+        void Awake()
+        {
+            Instance = this;
+            SoftCheckpoint.Register(MissionNodeId.S0_Boardwalk);
+        }
 
         public void TryAdvance(MissionNodeId reached)
         {
@@ -22,27 +26,20 @@ namespace HeroCity.Mission
             // S5 door gate — refuse until C4 wave clears DoorUnlocked
             if (reached == MissionNodeId.S5_Hideout && !DoorUnlocked)
             {
-                FindFirstObjectByType<ObjectiveHud>()?.SetObjective("Clear C4 / unlock door first");
+                FindFirstObjectByType<ObjectiveHud>()?.SetObjective("Clear C4 approach — door locked");
                 Debug.Log("[Mission] TryAdvance(S5) refused — !DoorUnlocked");
                 return;
             }
 
-            // C5 volume must not skip Blackout — only AdvanceToAftertaste() moves S5→C5
-            if (reached == MissionNodeId.C5_Aftertaste && Current != MissionNodeId.C5_Aftertaste)
-            {
-                FindFirstObjectByType<ObjectiveHud>()?.SetObjective("Finish N1 Blackout first");
-                Debug.Log("[Mission] TryAdvance(C5) refused — await Blackout disengage");
-                return;
-            }
-
-            // Must clear current wave before jumping ahead more than one
             if ((int)reached > (int)Current)
             {
                 if (!_waveClearedForCurrent && reached != Current)
                 {
-                    ObjectiveHud hud = FindFirstObjectByType<ObjectiveHud>();
-                    hud?.SetObjective("Clear hostiles before advancing");
-                    return;
+                    if (!(reached == MissionNodeId.C5_Aftertaste && Current == MissionNodeId.S5_Hideout))
+                    {
+                        FindFirstObjectByType<ObjectiveHud>()?.SetObjective("Clear hostiles before advancing");
+                        return;
+                    }
                 }
             }
             if ((int)reached < (int)Current) return;
@@ -53,6 +50,10 @@ namespace HeroCity.Mission
                 _waveClearedForCurrent = reached == MissionNodeId.C5_Aftertaste;
                 Debug.Log($"[Mission] Advanced → {Current} · beat {StoryLabel(Current)}");
             }
+
+            // Soft checkpoints on entering S0 / S3 / S5
+            if (SoftCheckpoint.IsSoftNode(Current))
+                SoftCheckpoint.Register(Current);
 
             if (reached != MissionNodeId.C5_Aftertaste)
                 EncounterDirector.Instance?.OnEnteredNode(Current);
@@ -66,7 +67,7 @@ namespace HeroCity.Mission
             if (Current == MissionNodeId.S4_WarehouseApproach)
             {
                 DoorUnlocked = true;
-                Debug.Log("[Mission] DoorUnlocked = true (S4 clear) · VO.N1.Reveal pending at hideout");
+                Debug.Log("[Mission] DoorUnlocked = true (S4 clear)");
                 ClearDoorBlocker();
                 FindFirstObjectByType<ObjectiveHud>()?.SetObjective("Door unlocked — enter hideout (S5)");
                 return;
@@ -94,11 +95,14 @@ namespace HeroCity.Mission
 
         static void ClearDoorBlocker()
         {
-            var blocker = GameObject.Find("Hideout_Door_Blocker");
-            if (blocker != null)
+            foreach (var name in new[] { "Hideout_Door_Blocker", "Hideout_Door_Blocker_Solid" })
             {
-                blocker.SetActive(false);
-                Debug.Log("[Mission] Hideout_Door_Blocker disabled");
+                var blocker = GameObject.Find(name);
+                if (blocker != null)
+                {
+                    blocker.SetActive(false);
+                    Debug.Log($"[Mission] {name} disabled");
+                }
             }
         }
 
@@ -122,22 +126,21 @@ namespace HeroCity.Mission
 
         static string StoryObjective(MissionNodeId id) => id switch
         {
-            MissionNodeId.S0_Boardwalk => "C1 Call — clear boardwalk trash, learn Arc fire (LMB) + SURGE Q/E/F",
+            MissionNodeId.S0_Boardwalk => "C1 Call — clear boardwalk trash (guns OK) · learn SURGE Q/E/F",
             MissionNodeId.S1_Bodega => "C2 Pattern — clear bodega stoop pack",
-            MissionNodeId.S2_AlleyRoof => "C3 Trail — alley/roof hostiles (elite in mix)",
-            MissionNodeId.S3_Junction => "C3 Funnel — hold Junction plaza",
-            MissionNodeId.S4_WarehouseApproach => "C4 Door — break warehouse approach · unlock hideout door",
-            MissionNodeId.S5_Hideout => "N1 — clear prelude, then Blackout (VO.N1.Reveal)",
+            MissionNodeId.S2_AlleyRoof => "C3 Trail — Arena_A alley hostiles",
+            MissionNodeId.S3_Junction => "C3 Funnel — hold Arena_B plaza",
+            MissionNodeId.S4_WarehouseApproach => "C4 Door — Arena_C approach · unlock hideout door",
+            MissionNodeId.S5_Hideout => "N1 — Arena_D prelude, then Blackout clash (35%/90s)",
             MissionNodeId.C5_Aftertaste => "C5 Aftertaste — leave the hideout",
             _ => "Advance the chain"
         };
 
         void OnGUI()
         {
-            // Beat label is owned by ObjectiveHud; keep a compact left badge only
-            GUI.Box(new Rect(12, 12, 280, 28),
+            GUI.Box(new Rect(12, 12, 300, 28),
                 StoryLabel(Current) + (_waveClearedForCurrent ? " · CLEAR" : " · FIGHT")
-                + (DoorUnlocked ? " · DOOR" : ""));
+                + (DoorUnlocked ? " · DOOR OPEN" : " · DOOR LOCKED"));
         }
     }
 }

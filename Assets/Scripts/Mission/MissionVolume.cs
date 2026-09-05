@@ -27,7 +27,7 @@ namespace HeroCity.Mission
                 var chain = MissionChainController.Instance;
                 if (chain == null || !chain.DoorUnlocked)
                 {
-                    FindFirstObjectByType<ObjectiveHud>()?.SetObjective("Clear C4 / unlock door first");
+                    FindFirstObjectByType<ObjectiveHud>()?.SetObjective("Clear C4 approach — door locked");
                     Debug.Log("[Mission] Door locked — refuse S5 until DoorUnlocked");
                     return;
                 }

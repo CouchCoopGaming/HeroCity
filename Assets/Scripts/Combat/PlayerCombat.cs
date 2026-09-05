@@ -3,11 +3,12 @@ using HeroCity.Surge;
 
 namespace HeroCity.Combat
 {
-    /// <summary>LMB Arc primary — applies Jolt. RMB Cap Mine / Arc Seed / Field Puck shortcut via Surge Q still primary.</summary>
+    /// <summary>LMB Arc primary — Jolt tags + damage. Guns-only must clear (SURGE is feel, not door key).</summary>
     public class PlayerCombat : MonoBehaviour
     {
         [SerializeField] float range = 28f;
-        [SerializeField] float damage = 9f;
+        // ~140 body DPS at 0.18s interval → damage ≈ 25
+        [SerializeField] float damage = 25f;
         [SerializeField] float fireInterval = 0.18f;
         [SerializeField] float joltPerHit = 0.55f;
         float _cd;
